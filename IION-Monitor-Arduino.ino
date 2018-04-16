@@ -33,4 +33,7 @@ void loop() {
 #if ETHERNET_ENABLED
   checkRequest();
 #endif
+#if SERIAL_ENABLED
+  getEnergy();
+#endif
 }

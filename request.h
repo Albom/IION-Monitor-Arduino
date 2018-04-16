@@ -1,8 +1,9 @@
-#ifndef ETHERNET_H
-#define ETHERNET_H
+#ifndef REQUEST_H
+#define REQUEST_H
 
 #include <Ethernet.h>
 #include "temperature.h"
+#include "energy.h"
 
 
 
@@ -24,7 +25,9 @@ void requestResponse(EthernetClient& client) {
   client.println(F("Content-Type: text/plain"));
   client.println(F("Connection: close"));
   client.println();
-  client.print(getTemperature());
+  client.println(getTemperature());
+  client.print("5000000000000001 ");
+  client.println(getEnergy());
 }
 
 
@@ -65,4 +68,4 @@ void startServer() {
   server.begin();
 }
 
-#endif // ETHERNET_H
+#endif // REQUEST_H
