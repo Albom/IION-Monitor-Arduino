@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Git files.
+*.gitattributes text
+*.gitignore text
+
+# Cpp files.
+*.cpp text
+*.h text
+
+# Arduino files.
+*.ino text
