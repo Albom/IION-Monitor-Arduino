@@ -4,10 +4,20 @@
 
 
 // Глобальные переменные:
+float consumptionCurrent;
 
-float getEnergy(){
+
+
+//! Вернуть текущее значение потребления энергии.
+float getEnergy() {
+  return consumptionCurrent;
+}
+
+
+
+//! Процесс обновления значения текущего потребления энергии.
+void consumptionRead() {
   uint16_t current;
-  float d;
   uint16_t min_ = 1024, max_ = 0;
   for (uint8_t i = 0; i < 200; ++i) {
     current =  analogRead(0);
@@ -18,10 +28,11 @@ float getEnergy(){
       min_ = current;
     }
   }
-  d = (max_ - min_) / 2.0 * 0.707 * ((5.0 / 1024.0) * 220.0) * 10;
+  consumptionCurrent = (max_ - min_) / 2.0 * 0.707 * ((5.0 / 1024.0) * 220.0) * 10;
 #if SERIAL_ENABLED
-    Serial.println(d);
+    Serial.println(consumptionCurrent);
 #endif
-  return d;
+  return consumptionCurrent;
 }
+
 #endif // ENERGY_H

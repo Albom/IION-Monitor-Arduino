@@ -13,6 +13,7 @@ char one_sensor_data[sensorsCount][32];
 byte addr[sensorsCount][8];
 byte data[12];
 uint8_t addrCount = 0;
+uint8_t index = 0;
 
 
 
@@ -50,9 +51,8 @@ char * getTemperature() {
 
 
 
-//! Считать температуры с датчиков в буфер.
-void temperatureUpdate() {
-  static uint8_t index = 0;
+//! Преобразовать температуру датчика в буфер датчика.
+void temperatureConversion() {
   if (index == addrCount) {
     index = 0;
   }
@@ -64,10 +64,14 @@ void temperatureUpdate() {
     ds.reset();
     ds.select(addr[index]);
     ds.write(0x44, 1);
+  }
+}
 
-    // Задержка 750+ милисекунд до завершения преобразования.
-    delay(750); 
 
+
+//! Считывание температуры в буфер программы.
+void temperatureRead() {
+  if (OneWire::crc8(addr[index], 7) == addr[index][7]) {
     // Команда на считывание.
     ds.reset();
     ds.select(addr[index]);

@@ -25,7 +25,7 @@ void requestResponse(EthernetClient& client) {
   client.println(F("Content-Type: text/plain"));
   client.println(F("Connection: close"));
   client.println();
-  client.println(getTemperature());
+  client.print(getTemperature());
   client.print("5000000000000001 ");
   client.println(getEnergy());
 }
