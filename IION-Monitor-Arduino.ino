@@ -2,8 +2,8 @@
 #define SERIAL_ENABLED !ETHERNET_ENABLED
 
 #include <StaticThreadController.h>
-#include "energy.h"
-#include "temperature.h"
+#include "Energy.h"
+#include "Temperature.h"
 
 #if ETHERNET_ENABLED
 #include "request.h"
@@ -11,13 +11,15 @@
 
 
 
-// Обьявления
+Temperature tmpr;
+Energy enrg;
+
+float getEnergy();
+char* getTemperature();
+
+void consumptionUpdate();
 void temperatureUpdate();
-#define consumptionUpdate consumptionRead
 
-
-
-// Глобальные переменные
 Thread temperatureT = Thread(temperatureUpdate);
 Thread consumptionT = Thread(consumptionUpdate);
 StaticThreadController<2> threads(&temperatureT, &consumptionT);
@@ -39,7 +41,7 @@ void setup() {
 
   temperatureT.setInterval(49);
   consumptionT.setInterval(499);
-  findTemperatureSensors();
+  tmpr.findSensors();
 }
 
 
@@ -54,16 +56,37 @@ void loop() {
 
 
 
+//! Получить потребление для реквеста.
+float getEnergy() {
+  return enrg.get();
+}
+
+
+
+//! Получить температуры для реквеста.
+char* getTemperature() {
+  return tmpr.get();
+}
+
+
+
+//! Процесс обновления текущего потребления энергии.
+void consumptionUpdate() {
+  enrg.read();
+}
+
+
+
 //! Процесс обновления значений буфера температур.
 void temperatureUpdate() {
   static bool state = true;
   if (state) {
     state = !state;
-    temperatureConversion();
+    tmpr.conversion();
     temperatureT.setInterval(751);
   } else {
     state = !state;
-    temperatureRead();
+    tmpr.read();
     temperatureT.setInterval(49);
   }
 }

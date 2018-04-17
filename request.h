@@ -2,15 +2,18 @@
 #define REQUEST_H
 
 #include <Ethernet.h>
-#include "temperature.h"
-#include "energy.h"
 
 
 
+// Обьявления
 #define IP IPAddress(172, 17, 24, 131)
 #define GATEWAY IPAddress(172, 17, 24, 1)
 #define SUBNET IPAddress(255, 255, 255, 0)
-  
+extern char* getTemperature();
+extern float getEnergy();
+
+
+ 
 // Глобальные переменные:
 EthernetServer server(80);
 
