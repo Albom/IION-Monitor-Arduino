@@ -3,7 +3,7 @@
 
 
 //! 
-Temperature::Temperature() : ds(9), addrCount(0), index(0) {
+Temperature::Temperature() : ds(9), count(0), index(0){
 
 }
 
@@ -22,10 +22,26 @@ void Temperature::addr2str(char *str, const byte *addr) {
 
 //! Поиск и сохранение адресов температурных датчиков.
 void Temperature::findSensors() {
-  while (ds.search(addr[addrCount]) && (addrCount < sensorsCount)) {
-    addr2str(one_sensor_data[addrCount], addr[addrCount]);
-    one_sensor_data[addrCount][16] = ' ';
-    ++addrCount;
+  byte temp[8];
+  while (ds.search(temp) && (count < MAXIMUM_SENSORS)) {
+    ++count;
+  }
+
+  ds.reset_search();
+  data = new int8_t[count];
+  addr = new byte* [count];
+  uint8_t i = 0;
+  for (i = 0; i < count; ++i) {
+    addr[i] = new byte[8];
+  }
+  i = 0;
+  while (ds.search(addr[i]) && (i < MAXIMUM_SENSORS)) {
+    char str[8];
+    addr2str(str, addr[i]);
+#if SERIAL_ENABLED
+    Serial.println(str);
+#endif     
+    ++i;
   }
 }
 
@@ -33,24 +49,25 @@ void Temperature::findSensors() {
 
 //! Получить буфер температур.
 char* Temperature::get() {
-  output_buffer[0] = '\0';
-  for (uint8_t i = 0; i < addrCount; ++i) {
-    strcat(output_buffer, one_sensor_data[i]);
-    strcat(output_buffer, "\n");
+  char str[20];
+  char* temp = new char[count * 20]; 
+  for (uint8_t i = 0; i < count; ++i) {
+    addr2str(str, addr[i]);
+    str[16] = " ";
+    itoa(data[i], str + 17, 10);
+    strcat(temp, str);
+    strcat(temp, "\n");
   }
-  return output_buffer;
+  return temp;
 }
 
 
 
 //! Преобразовать температуру датчика в буфер датчика.
 void Temperature::conversion() {
-  if (index == addrCount) {
+  if (index == count) {
     index = 0;
   }
-
-  addr2str(one_sensor_data[index], addr[index]);
-
   if (OneWire::crc8(addr[index], 7) == addr[index][7]) {
     // Команда преобразования.
     ds.reset();
@@ -68,18 +85,19 @@ void Temperature::read() {
     ds.reset();
     ds.select(addr[index]);
     ds.write(0xBE);
-
+    
     // Считывание.
+    byte temp[12];
     for (uint8_t i = 0; i < 9; ++i) {
-      data[i] = ds.read();
+      temp[i] = ds.read();
     }
-
+    data[index] = ((temp[1] << 8) | temp[0]) / 16;
     // Преобразование формата.
-    int16_t raw = (data[1] << 8) | data[0];
-    itoa(raw / 16, one_sensor_data[index] + 17, 10);
+    //int16_t raw = (temp[1] << 8) | temp[0];
+    //itoa(raw / 16, one_sensor_data[index] + 17, 10);
 
 #if SERIAL_ENABLED
-    Serial.println(one_sensor_data[index]);
+    Serial.println(data[index]);
 #endif
   }
   ++index;

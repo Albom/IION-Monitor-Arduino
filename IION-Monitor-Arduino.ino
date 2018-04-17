@@ -1,5 +1,5 @@
 #define ETHERNET_ENABLED 1
-#define SERIAL_ENABLED !ETHERNET_ENABLED
+#define SERIAL_ENABLED 0
 
 #include <StaticThreadController.h>
 #include "Energy.h"
@@ -33,15 +33,16 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  Serial.println("Serial");
 #endif
 
 #if ETHERNET_ENABLED
   startServer();
 #endif
 
+  tmpr.findSensors();
   temperatureT.setInterval(49);
   consumptionT.setInterval(499);
-  tmpr.findSensors();
 }
 
 
@@ -81,12 +82,12 @@ void consumptionUpdate() {
 void temperatureUpdate() {
   static bool state = true;
   if (state) {
+    temperatureT.setInterval(999);
     state = !state;
-    tmpr.conversion();
-    temperatureT.setInterval(751);
+    tmpr.conversion();    
   } else {
+    temperatureT.setInterval(1);
     state = !state;
-    tmpr.read();
-    temperatureT.setInterval(49);
+    tmpr.read();   
   }
 }
