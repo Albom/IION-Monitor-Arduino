@@ -6,11 +6,10 @@
 
 
 // Обьявления
-#define IP IPAddress(172, 17, 24, 131)
+#define IP IPAddress(172, 17, 24, 131) // 192, 168, 1, 200
 #define GATEWAY IPAddress(172, 17, 24, 1)
 #define SUBNET IPAddress(255, 255, 255, 0)
-extern char* getTemperature();
-extern float getEnergy();
+byte MAC[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 
  
@@ -20,18 +19,7 @@ EthernetServer server(80);
 
 
 //! Ответить на запрос.
-void requestResponse(EthernetClient& client) {
-#if SERIAL_ENABLED
-  Serial.println("Request");
-#endif
-  client.println(F("HTTP/1.1 200 OK"));
-  client.println(F("Content-Type: text/plain"));
-  client.println(F("Connection: close"));
-  client.println();
-  client.print(getTemperature());
-  client.print("5000000000000001 ");
-  client.println(getEnergy());
-}
+extern void requestResponse(EthernetClient& client);
 
 
 
@@ -62,12 +50,7 @@ void checkRequest() {
 
 //! Настроить и запустить сервер.
 void startServer() {
-  byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-  //IPAddress ip(192, 168, 1, 200);
-//  IPAddress ip(172, 17, 24, 131);
-//  IPAddress gateway(172, 17, 24, 1);
-//  IPAddress subnet(255, 255, 255, 0);
-  Ethernet.begin(mac, IP, GATEWAY, SUBNET);
+  Ethernet.begin(MAC, IP, GATEWAY, SUBNET);
   server.begin();
 }
 

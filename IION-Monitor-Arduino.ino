@@ -1,7 +1,7 @@
 #define ETHERNET_ENABLED 1
-#define SERIAL_ENABLED 0
+#define SERIAL_ENABLED !ETHERNET_ENABLED
 
-#include <StaticThreadController.h>
+#include <Thread.h>
 #include "Energy.h"
 #include "Temperature.h"
 
@@ -22,7 +22,6 @@ void temperatureUpdate();
 
 Thread temperatureT = Thread(temperatureUpdate);
 Thread consumptionT = Thread(consumptionUpdate);
-StaticThreadController<2> threads(&temperatureT, &consumptionT);
 
 
 
@@ -41,8 +40,8 @@ void setup() {
 #endif
 
   tmpr.findSensors();
-  temperatureT.setInterval(49);
-  consumptionT.setInterval(499);
+  temperatureT.setInterval(1);
+  consumptionT.setInterval(500);
 }
 
 
@@ -52,21 +51,12 @@ void loop() {
 #if ETHERNET_ENABLED
   checkRequest();
 #endif
-  threads.run();
-}
-
-
-
-//! Получить потребление для реквеста.
-float getEnergy() {
-  return enrg.get();
-}
-
-
-
-//! Получить температуры для реквеста.
-char* getTemperature() {
-  return tmpr.get();
+  if (temperatureT.shouldRun()) {
+    temperatureT.run();
+  }
+  if (consumptionT.shouldRun()) {
+    consumptionT.run();
+  }
 }
 
 
@@ -82,12 +72,43 @@ void consumptionUpdate() {
 void temperatureUpdate() {
   static bool state = true;
   if (state) {
-    temperatureT.setInterval(999);
+    temperatureT.setInterval(750);
     state = !state;
-    tmpr.conversion();    
+    tmpr.conversion();
   } else {
     temperatureT.setInterval(1);
     state = !state;
-    tmpr.read();   
+    tmpr.read();
   }
 }
+
+
+
+#if ETHERNET_ENABLED
+//! Вывод данных в ответ на запрос.
+void responsePrint(EthernetClient& client, Temperature& obj) {
+  char* temp;
+  for (uint8_t i = 0; i < tmpr.count; ++i) {
+    temp = obj.get(i);
+    client.println(temp);
+    delete[] temp;
+  }
+}
+
+
+
+//! Ответить на запрос.
+void requestResponse(EthernetClient& client) {
+#if SERIAL_ENABLED
+  Serial.println("Request");
+#endif
+  client.println(F("HTTP/1.1 200 OK"));
+  client.println(F("Content-Type: text/plain"));
+  client.println(F("Connection: close"));
+  client.println();
+
+  responsePrint(client, tmpr);
+  client.print("5000000000000001 ");
+  client.println(enrg.get());
+}
+#endif
