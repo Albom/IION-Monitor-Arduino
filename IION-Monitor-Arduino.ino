@@ -1,9 +1,12 @@
-#define ETHERNET_ENABLED 1
-#define SERIAL_ENABLED !ETHERNET_ENABLED
+#define SERIAL_ENABLED 0
 
-#include <Thread.h>
+#include "ThreadLite.h"
 #include "Energy.h"
 #include "Temperature.h"
+
+
+
+#define ETHERNET_ENABLED !SERIAL_ENABLED
 
 #if ETHERNET_ENABLED
 #include "request.h"
@@ -20,8 +23,8 @@ char* getTemperature();
 void consumptionUpdate();
 void temperatureUpdate();
 
-Thread temperatureT = Thread(temperatureUpdate);
-Thread consumptionT = Thread(consumptionUpdate);
+Thread temperatureT = Thread(temperatureUpdate, 1);
+Thread consumptionT = Thread(consumptionUpdate, 500);
 
 
 
@@ -40,8 +43,6 @@ void setup() {
 #endif
 
   tmpr.findSensors();
-  temperatureT.setInterval(1);
-  consumptionT.setInterval(500);
 }
 
 
