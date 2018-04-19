@@ -20,11 +20,13 @@ void Temperature::addr2str(char* str, const uint8_t* addr) {
 //! Поиск и сохранение адресов температурных датчиков.
 void Temperature::findSensors() {
   uint8_t temp[8];
+  // Подсчитать колличество датчиков.
   while (ds.search(temp) && (count < MAXIMUM_SENSORS)) {
     ++count;
   }
   ds.reset_search();
 
+  // Считать адреса датчиков.
   data = new float[count];
   addr = new char* [count];
   for (uint8_t i = 0; i < count; ++i) {
@@ -79,8 +81,14 @@ void Temperature::read() {
     for (uint8_t i = 0; i < 12; ++i) {
       temp[i] = ds.read();
     }
-    data[index] = ((int16_t(temp[1]) << 8) + temp[0]) / 16;
 
+    int16_t reading = (int16_t(temp[1]) << 8) + temp[0];
+    if (reading & 0x8000) // Tсли число отрицательное
+    {
+      reading = (reading ^ 0xffff) + 1;
+    }
+    data[index] = reading * 0.0625;                       // 12 байт
+    
 #if SERIAL_ENABLED
     Serial.println(data[index]);
 #endif
