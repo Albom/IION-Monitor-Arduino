@@ -87,12 +87,11 @@ void temperatureUpdate() {
 
 #if ETHERNET_ENABLED
 //! Вывод данных в ответ на запрос.
-void responsePrint(EthernetClient& client, Temperature& obj) {
-  char* temp;
-  for (uint8_t i = 0; i < tmpr.count; ++i) {
-    temp = obj.get(i);
-    client.println(temp);
-    delete[] temp;
+void responsePrint(EthernetClient& client, const BaseSensor* obj) {
+  for (uint8_t i = 0; i < obj->getCount(); ++i) {
+    client.print(obj->getAddr(i));
+    client.print(" ");
+    client.println(obj->getValue(i));
   }
 }
 
@@ -108,8 +107,13 @@ void requestResponse(EthernetClient& client) {
   client.println(F("Connection: close"));
   client.println();
 
-  responsePrint(client, tmpr);
-  client.print("5000000000000001 ");
-  client.println(enrg.get());
+  responsePrint(client, &tmpr);
+  responsePrint(client, &enrg);
+  //client.println(enrg.get());
+//  for (uint8_t i = 0; i < enrg.count; ++i) {
+//    client.print(enrg.getAddr(i));
+//    client.print(" ");
+//    client.println(enrg.getValue(i));
+//  }
 }
 #endif

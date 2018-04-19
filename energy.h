@@ -2,16 +2,16 @@
 #define ENERGY_H
 
 #include <SPI.h>
+#include "BaseSensor.h"
+
+#define N_PHASES 1
 
 
 
-class Energy {
+class Energy : public BaseSensor {
   public:
     Energy();
-    float get();
-    void read();
-  private:
-    float consumptionCurrent;
+    void read() override;
 };
 
 #endif // ENERGY_H
