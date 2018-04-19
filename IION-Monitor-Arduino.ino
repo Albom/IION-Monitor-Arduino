@@ -1,30 +1,30 @@
 #define SERIAL_ENABLED 0
+#define TEMPERATURE_ENABLED 1
+#define ENERGY_ENABLED 1
+
+
 
 #include "ThreadLite.h"
-#include "Energy.h"
+
+#if TEMPERATURE_ENABLED
 #include "Temperature.h"
+void temperatureUpdate();
+Temperature tmpr;
+Thread temperatureT = Thread(temperatureUpdate, 1);
+#endif // TEMPERATURE_ENABLED
 
-
+#if ENERGY_ENABLED
+#include "Energy.h"
+void consumptionUpdate();
+Energy enrg;
+Thread consumptionT = Thread(consumptionUpdate, 300);
+#endif // ENERGY_ENABLED
 
 #define ETHERNET_ENABLED !SERIAL_ENABLED
 
 #if ETHERNET_ENABLED
 #include "request.h"
-#endif
-
-
-
-Temperature tmpr;
-Energy enrg;
-
-float getEnergy();
-char* getTemperature();
-
-void consumptionUpdate();
-void temperatureUpdate();
-
-Thread temperatureT = Thread(temperatureUpdate, 1);
-Thread consumptionT = Thread(consumptionUpdate, 500);
+#endif // ETHERNET_ENABLED
 
 
 
@@ -36,13 +36,15 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial.println("Serial");
-#endif
+#endif // SERIAL_ENABLED
 
 #if ETHERNET_ENABLED
   startServer();
-#endif
+#endif // ETHERNET_ENABLED
 
+#if TEMPERATURE_ENABLED
   tmpr.findSensors();
+#endif // TEMPERATURE_ENABLED
 }
 
 
@@ -52,28 +54,37 @@ void loop() {
 #if ETHERNET_ENABLED
   checkRequest();
 #endif
+
+#if TEMPERATURE_ENABLED
   if (temperatureT.shouldRun()) {
     temperatureT.run();
   }
+#endif // TEMPERATURE_ENABLED
+
+#if ENERGY_ENABLED
   if (consumptionT.shouldRun()) {
     consumptionT.run();
   }
+#endif // ENERGY_ENABLED
 }
 
 
 
+#if ENERGY_ENABLED
 //! Процесс обновления текущего потребления энергии.
 void consumptionUpdate() {
   enrg.read();
 }
+#endif // ENERGY_ENABLED
 
 
 
+#if TEMPERATURE_ENABLED
 //! Процесс обновления значений буфера температур.
 void temperatureUpdate() {
   static bool state = true;
   if (state) {
-    temperatureT.setInterval(750);
+    temperatureT.setInterval(999);
     state = !state;
     tmpr.conversion();
   } else {
@@ -82,6 +93,7 @@ void temperatureUpdate() {
     tmpr.read();
   }
 }
+#endif // TEMPERATURE_ENABLED
 
 
 
@@ -94,26 +106,21 @@ void responsePrint(EthernetClient& client, const BaseSensor* obj) {
     client.println(obj->getValue(i));
   }
 }
+#endif // ETHERNET_ENABLED
 
 
 
+#if ETHERNET_ENABLED
 //! Ответить на запрос.
 void requestResponse(EthernetClient& client) {
-#if SERIAL_ENABLED
-  Serial.println("Request");
-#endif
-  client.println(F("HTTP/1.1 200 OK"));
-  client.println(F("Content-Type: text/plain"));
-  client.println(F("Connection: close"));
-  client.println();
-
+  client.println("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Type: text/plain\n");
+  
+#if TEMPERATURE_ENABLED
   responsePrint(client, &tmpr);
+#endif // TEMPERATURE_ENABLED
+  
+#if ENERGY_ENABLED
   responsePrint(client, &enrg);
-  //client.println(enrg.get());
-//  for (uint8_t i = 0; i < enrg.count; ++i) {
-//    client.print(enrg.getAddr(i));
-//    client.print(" ");
-//    client.println(enrg.getValue(i));
-//  }
+#endif // ENERGY_ENABLED
 }
-#endif
+#endif // ETHERNET_ENABLED
