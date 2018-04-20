@@ -1,13 +1,12 @@
 #include "ThreadLite.h"
 
 Thread::Thread(void (*callback)(void), TIME_TYPE _interval) {
-  enabled = true;
   _onRun = callback;
   _cached_next_run = 0;
   last_run = 0;
 
   setInterval(_interval);
-};
+}
 
 void Thread::runned() {
   // Saves last_run
@@ -32,7 +31,7 @@ bool Thread::shouldRun() {
   bool time_remaining = (time - _cached_next_run) & TIME_OVERFLOW;
 
   // Exceeded the time limit, AND is enabled? Then should run...
-  return !time_remaining && enabled;
+  return !time_remaining;
 }
 
 void Thread::run() {

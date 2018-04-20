@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define TIME_TYPE uint16_t
-#define TIME_OVERFLOW 0x8000 // uint16_t = 0x8000 or uint32_t = 0x80000000
+#define TIME_OVERFLOW 0x8000
 
 class Thread{
 protected:
@@ -31,13 +31,6 @@ protected:
 	void (*_onRun)(void);		
 
 public:
-
-	// If the current Thread is enabled or not
-	bool enabled;
-
-	// ID of the Thread (initialized from memory adr.)
-	
-  //int ThreadID;
 
 	Thread(void (*callback)(void), TIME_TYPE _interval);
 

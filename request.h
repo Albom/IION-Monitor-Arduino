@@ -5,20 +5,20 @@
 
 
 
-// Обьявления
-#define IP IPAddress(172, 17, 24, 131) // 192, 168, 1, 200
+//! Адрес устройства.
+#define IP IPAddress(172, 17, 24, 131)
 #define GATEWAY IPAddress(172, 17, 24, 1)
 #define SUBNET IPAddress(255, 255, 255, 0)
 byte MAC[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 
  
-// Глобальные переменные:
+//! Глобальный сервер.
 EthernetServer server(80);
 
 
 
-//! Ответить на запрос.
+//! Ответить на запрос. Определение в файле IION-Monitor-Arduino.
 extern void requestResponse(EthernetClient& client);
 
 

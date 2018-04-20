@@ -31,9 +31,9 @@ Thread consumptionT = Thread(consumptionUpdate, 300);
 //! Настройка устройства.
 void setup() {
 #if SERIAL_ENABLED
-  Serial.begin(9600); // Можно больше???
+  Serial.begin(9600);
   while (!Serial) {}
-  Serial.println("Serial");
+  Serial.println("Serial enabled.");
 #endif // SERIAL_ENABLED
 
 #if ETHERNET_ENABLED
@@ -69,7 +69,7 @@ void loop() {
 
 
 #if ENERGY_ENABLED
-//! Процесс обновления текущего потребления энергии.
+//! Процесс обновления буфера потребления энергии.
 void consumptionUpdate() {
   enrg.read();
 }
@@ -78,14 +78,16 @@ void consumptionUpdate() {
 
 
 #if TEMPERATURE_ENABLED
-//! Процесс обновления значений буфера температур.
+//! Процесс обновления буфера температур.
 void temperatureUpdate() {
   static bool state = true;
   if (state) {
+    // Режим преобразования. Длительность 750+ миллисекунд.
     temperatureT.setInterval(999);
     state = !state;
     tmpr.conversion();
   } else {
+    // Режим считывания.
     temperatureT.setInterval(1);
     state = !state;
     tmpr.read();
