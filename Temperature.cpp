@@ -2,7 +2,11 @@
 
 
 
-Temperature::Temperature() : BaseSensor(), ds(9) {}
+#define BYTE_COUNT 12
+
+
+
+Temperature::Temperature(const uint8_t seriesByte) : BaseSensor(), ds(9), series(seriesByte) {}
 
 
 
@@ -18,27 +22,35 @@ void Temperature::addr2str(char* str, const uint8_t* addr) {
 
 
 //! Поиск и сохранение адресов температурных датчиков.
-void Temperature::findSensors() {
+void Temperature::find() {
   uint8_t temp[8];
   // Подсчитать колличество датчиков.
   while (ds.search(temp) && (count < MAXIMUM_SENSORS)) {
-    ++count;
+    if (temp[0] == series) {
+      ++count;
+    }
   }
   ds.reset_search();
 
   // Считать адреса датчиков.
   data = new float[count];
   addr = new char* [count];
+
   for (uint8_t i = 0; i < count; ++i) {
     addr[i] = new char[8];
-    ds.search(addr[i]);
+  }
+  uint8_t i = 0;
+  while (ds.search(addr[i]) && i < count) {
+    if (addr[i][0] == series) {
+      ++i;
 #if SERIAL_ENABLED
-    char* str = new char[17];
-    addr2str(str, addr[i]);
-    str[16] = '\0';
-    Serial.println(str);
-    delete[] str;
+      char* str = new char[17];
+      addr2str(str, addr[i]);
+      str[16] = '\0';
+      Serial.println(str);
+      delete[] str;
 #endif
+    }
   }
 }
 
@@ -77,18 +89,16 @@ void Temperature::read() {
     ds.select(addr[index]);
     ds.write(0xBE);
 
-    uint8_t temp[12];
-    for (uint8_t i = 0; i < 12; ++i) {
-      temp[i] = ds.read();
-    }
+    uint8_t byte0 = ds.read();
+    int16_t byte1 = ds.read();
 
-    int16_t reading = (int16_t(temp[1]) << 8) + temp[0];
-    if (reading & 0x8000) // Tсли число отрицательное
-    {
-      reading = (reading ^ 0xffff) + 1;
-    }
-    data[index] = reading * 0.0625;                       // 12 байт
-    
+#if BYTE_COUNT == 12
+    data[index] = ((byte1 << 8) + byte0) * 0.0625;   // 12 байт;
+#endif
+#if BYTE_COUNT == 9
+    data[index] = ((byte1 << 8) + byte0) * 0.05;     // 9 байт.
+#endif
+
 #if SERIAL_ENABLED
     Serial.println(data[index]);
 #endif

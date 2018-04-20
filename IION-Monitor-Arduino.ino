@@ -9,7 +9,7 @@
 #if TEMPERATURE_ENABLED
 #include "Temperature.h"
 void temperatureUpdate();
-Temperature tmpr;
+Temperature tmpr = Temperature(0x28);
 Thread temperatureT = Thread(temperatureUpdate, 1);
 #endif // TEMPERATURE_ENABLED
 
@@ -32,9 +32,7 @@ Thread consumptionT = Thread(consumptionUpdate, 300);
 void setup() {
 #if SERIAL_ENABLED
   Serial.begin(9600); // Можно больше???
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  while (!Serial) {}
   Serial.println("Serial");
 #endif // SERIAL_ENABLED
 
@@ -43,7 +41,7 @@ void setup() {
 #endif // ETHERNET_ENABLED
 
 #if TEMPERATURE_ENABLED
-  tmpr.findSensors();
+  tmpr.find();
 #endif // TEMPERATURE_ENABLED
 }
 
@@ -114,11 +112,11 @@ void responsePrint(EthernetClient& client, const BaseSensor* obj) {
 //! Ответить на запрос.
 void requestResponse(EthernetClient& client) {
   client.println("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Type: text/plain\n");
-  
+
 #if TEMPERATURE_ENABLED
   responsePrint(client, &tmpr);
 #endif // TEMPERATURE_ENABLED
-  
+
 #if ENERGY_ENABLED
   responsePrint(client, &enrg);
 #endif // ENERGY_ENABLED

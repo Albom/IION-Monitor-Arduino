@@ -4,7 +4,7 @@ Thread::Thread(void (*callback)(void), TIME_TYPE _interval) {
   enabled = true;
   _onRun = callback;
   _cached_next_run = 0;
-  last_run = millis();
+  last_run = 0;
 
   setInterval(_interval);
 };

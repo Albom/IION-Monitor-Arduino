@@ -14,15 +14,15 @@ Energy::Energy() : BaseSensor() {
   xratio = new float[count];
   addr = new char* [count];
   for (uint8_t i = 0; i < count; ++i) {
-    addr[i] = new char[16];
+    addr[i] = new char[4];
   }
-  addr[0] = "5000000000000001";
+  addr[0] = "5001";
   xratio[0] = 10.533624791050533624791050533625;
 #if N_PHASES > 1
-  addr[1] = "5000000000000002";
+  addr[1] = "5002";
   xratio[1] = 10.533624791050533624791050533625;
 #if N_PHASES > 2
-  addr[2] = "5000000000000003";
+  addr[2] = "5003";
   xratio[2] = 10.533624791050533624791050533625;
 #endif
 #endif
