@@ -1,3 +1,6 @@
+// Created by Ivan Seidel Gomes, March, 2013. Released into the public domain.
+// Copyright © 2018 Stanislav Hnatiuk. All rights reserved.
+
 #ifndef THREADLITE_H
 #define THREADLITE_H
 

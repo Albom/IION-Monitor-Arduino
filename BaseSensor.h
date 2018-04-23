@@ -1,3 +1,5 @@
+// Copyright © 2018 Stanislav Hnatiuk. All rights reserved.
+
 #ifndef BASESENSOR_H
 #define BASESENSOR_H
 

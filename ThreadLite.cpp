@@ -1,3 +1,6 @@
+// Created by Ivan Seidel Gomes, March, 2013. Released into the public domain.
+// Copyright © 2018 Stanislav Hnatiuk. All rights reserved.
+
 #include "ThreadLite.h"
 
 Thread::Thread(void (*callback)(void), TIME_TYPE _interval) {

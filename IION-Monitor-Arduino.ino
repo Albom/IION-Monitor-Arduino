@@ -1,3 +1,5 @@
+// Copyright © 2018 Stanislav Hnatiuk. All rights reserved.
+
 #define SERIAL_ENABLED 0
 #define TEMPERATURE_ENABLED 1
 #define ENERGY_ENABLED 1
