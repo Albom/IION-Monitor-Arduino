@@ -8,6 +8,10 @@
 
 
 
+class Filter;
+
+
+
 //! Класс датчиков потребления энергии. Наследуется от BaseSensor.
 class Energy : public BaseSensor {
   public:
@@ -17,14 +21,29 @@ class Energy : public BaseSensor {
     void read() override;
     
   private:
-    //! Фильтровать и сглаживать скачки с задержкой в одну итерацию.
-    uint16_t filter(const uint16_t next);
+    //! Фильтры для каждой фазы.
+    Filter* filters;
     
     //! Значения корректирующих коэффициентов фаз.
     float* xratio;
     
     //! Множитель для вычисления потребляемой энергии.
     const float calc = 1.0 / (2.0 / 0.707 / 5.0 * 1024.0 / 220.0);
+};
+
+
+
+//! Класс для фильтрации и сглаживания энергопотребления по каждой фазе.
+class Filter {
+  public:
+    Filter() {prev = 0; curr = 0;};
+
+    //! Фильтровать и сглаживать скачки с задержкой в одну итерацию.
+    uint16_t calc(const uint16_t next);
+    
+  private:
+    uint16_t prev = 0;
+    uint16_t curr = 0;
 };
 
 #endif // ENERGY_H

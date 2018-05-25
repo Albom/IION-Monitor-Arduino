@@ -3,6 +3,7 @@
 #define SERIAL_ENABLED 0
 #define TEMPERATURE_ENABLED 1
 #define ENERGY_ENABLED 1
+#define ETHERNET_ENABLED 1
 
 
 
@@ -19,10 +20,10 @@ Thread temperatureT = Thread(temperatureUpdate, 1);
 #include "Energy.h"
 void consumptionUpdate();
 Energy enrg;
-Thread consumptionT = Thread(consumptionUpdate, 300);
+Thread consumptionT = Thread(consumptionUpdate, 150);
 #endif // ENERGY_ENABLED
 
-#define ETHERNET_ENABLED !SERIAL_ENABLED
+
 
 #if ETHERNET_ENABLED
 #include "request.h"
