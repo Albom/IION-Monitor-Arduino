@@ -23,7 +23,7 @@ void Temperature::addr2str(char* str, const uint8_t* addr) {
 void Temperature::find() {
   uint8_t temp[8];
   // Подсчитать колличество датчиков соответствующей серии.
-  while (ds.search(temp) && (count < MAXIMUM_SENSORS)) {
+  while (ds.search(temp) && (count < sensorsMaxNum)) {
     if (temp[0] == series) {
       ++count;
     }

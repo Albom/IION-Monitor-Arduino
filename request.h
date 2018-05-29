@@ -6,14 +6,6 @@
 #include <Ethernet.h>
 
 
-
-//! Адрес устройства.
-#define IP IPAddress(172, 17, 24, 131)
-#define GATEWAY IPAddress(172, 17, 24, 1)
-#define SUBNET IPAddress(255, 255, 255, 0)
-byte MAC[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-
  
 //! Глобальный сервер.
 EthernetServer server(80);
@@ -52,7 +44,10 @@ void checkRequest() {
 
 //! Настроить и запустить сервер.
 void startServer() {
-  Ethernet.begin(MAC, IP, GATEWAY, SUBNET);
+  Ethernet.begin((0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED),
+                 IPAddress(172, 17, 24, 131), 
+                 IPAddress(172, 17, 24, 1), 
+                 IPAddress(255, 255, 255, 0));
   server.begin();
 }
 

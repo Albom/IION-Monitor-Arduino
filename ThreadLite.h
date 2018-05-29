@@ -6,19 +6,23 @@
 
 #include <Arduino.h>
 
-#define TIME_TYPE uint16_t
-#define TIME_OVERFLOW 0x8000
+
+
+using time_int = uint16_t;
+constexpr time_int time_over = (1 << (sizeof (time_int) * 8 - 1));
+
+
 
 class Thread{
 protected:
 	// Desired interval between runs
-	TIME_TYPE interval;
+	time_int interval;
 
 	// Last runned time in Ms
-	TIME_TYPE last_run;
+	time_int last_run;
 
 	// Scheduled run in Ms (MUST BE CACHED)	
-	TIME_TYPE _cached_next_run;
+	time_int _cached_next_run;
 
 	/*
 		IMPORTANT! Run after all calls to run()
@@ -34,17 +38,19 @@ protected:
 	void (*_onRun)(void);		
 
 public:
-
-	Thread(void (*callback)(void), TIME_TYPE _interval);
+	Thread(void (*callback)(void), time_int _interval);
 
 	// Set the desired interval for calls, and update _cached_next_run
-	void setInterval(TIME_TYPE _interval);
+	void setInterval(time_int _interval);
 
 	// Default is to check whether it should run "now"
 	bool shouldRun();
 
-	// Runs Thread
+	// Runs Thread if should be it
 	void run();
+
+	// Execute Thread
+	void execute();
 };
 
 #endif // THREADLITE_H

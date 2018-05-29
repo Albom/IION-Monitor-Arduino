@@ -9,12 +9,16 @@
 
 #include "ThreadLite.h"
 
+
+
 #if TEMPERATURE_ENABLED
 #include "Temperature.h"
 void temperatureUpdate();
 Temperature tmpr = Temperature(0x28);
 Thread temperatureT = Thread(temperatureUpdate, 1);
 #endif // TEMPERATURE_ENABLED
+
+
 
 #if ENERGY_ENABLED
 #include "Energy.h"
@@ -57,15 +61,11 @@ void loop() {
 #endif
 
 #if TEMPERATURE_ENABLED
-  if (temperatureT.shouldRun()) {
-    temperatureT.run();
-  }
+  temperatureT.run();
 #endif // TEMPERATURE_ENABLED
 
 #if ENERGY_ENABLED
-  if (consumptionT.shouldRun()) {
-    consumptionT.run();
-  }
+  consumptionT.run();
 #endif // ENERGY_ENABLED
 }
 

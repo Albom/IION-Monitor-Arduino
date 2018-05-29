@@ -3,13 +3,16 @@
 
 #include "ThreadLite.h"
 
-Thread::Thread(void (*callback)(void), TIME_TYPE _interval) {
+
+
+Thread::Thread(void (*callback)(void), time_int _interval) {
   _onRun = callback;
   _cached_next_run = 0;
-  last_run = 0;
-
+  last_run = millis();
   setInterval(_interval);
 }
+
+
 
 void Thread::runned() {
   // Saves last_run
@@ -19,7 +22,9 @@ void Thread::runned() {
   _cached_next_run = last_run + interval;
 }
 
-void Thread::setInterval(TIME_TYPE _interval) {
+
+
+void Thread::setInterval(time_int _interval) {
   // Save interval
   interval = _interval;
 
@@ -27,19 +32,30 @@ void Thread::setInterval(TIME_TYPE _interval) {
   _cached_next_run = last_run + interval;
 }
 
+
+
 bool Thread::shouldRun() {
-  TIME_TYPE time = millis();
+  time_int time = millis();
 
   // If the "sign" bit is set the signed difference would be negative
-  bool time_remaining = (time - _cached_next_run) & TIME_OVERFLOW;
+  bool time_remaining = (time - _cached_next_run) & time_over;
 
   // Exceeded the time limit, AND is enabled? Then should run...
   return !time_remaining;
 }
 
-void Thread::run() {
-  _onRun();
 
+
+void Thread::run() {
+  if (shouldRun()) {
+    execute();
+  }
+}
+
+
+
+void Thread::execute() {
+  _onRun();
   // Update last_run and _cached_next_run
   runned();
 }

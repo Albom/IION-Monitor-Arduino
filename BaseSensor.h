@@ -7,8 +7,7 @@
 
 
 
-#define MAXIMUM_SENSORS 10
-
+const uint8_t sensorsMaxNum = 10;
 
 
 

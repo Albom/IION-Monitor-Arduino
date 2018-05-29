@@ -8,6 +8,10 @@
 
 
 
+#define N_PHASES 3
+
+
+
 class Filter;
 
 
@@ -21,14 +25,14 @@ class Energy : public BaseSensor {
     void read() override;
     
   private:
+    //! Сдвиг пина
+    static const uint8_t pinShift = 1;
+
     //! Фильтры для каждой фазы.
     Filter* filters;
     
-    //! Значения корректирующих коэффициентов фаз.
-    float* xratio;
-    
     //! Множитель для вычисления потребляемой энергии.
-    const float calc = 1.0 / (2.0 / 0.707 / 5.0 * 1024.0 / 220.0);
+    static constexpr float calc = (1.0 / (2.0 / 0.707 / 5.0 * 1024.0 / 220.0)) * 10;
 };
 
 
@@ -36,14 +40,16 @@ class Energy : public BaseSensor {
 //! Класс для фильтрации и сглаживания энергопотребления по каждой фазе.
 class Filter {
   public:
-    Filter() {prev = 0; curr = 0;};
+    Filter() : prev(0), curr(0), ratio(1) {};
 
     //! Фильтровать и сглаживать скачки с задержкой в одну итерацию.
-    uint16_t calc(const uint16_t next);
-    
+    float filtering(const uint16_t next);
+
+    //! Корректирующий коэффициент фаз.
+    float ratio;
   private:
     uint16_t prev = 0;
-    uint16_t curr = 0;
+    uint16_t curr = 0;  
 };
 
 #endif // ENERGY_H
